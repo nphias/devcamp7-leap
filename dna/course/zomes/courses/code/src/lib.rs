@@ -23,6 +23,7 @@ use hdk_proc_macros::zome;
 mod anchor_trait;
 mod course;
 mod helper;
+mod section;
 
 #[zome]
 mod courses {
@@ -102,11 +103,34 @@ mod courses {
         course::handlers::get_my_enrolled_courses()
     }
 
-    // Section
-    // TODO: implement section entry definitions
-    // TODO: implement section CRUD methods
+    //  ====================== Section definitions
 
-    // Content
+    #[entry_def]
+    fn section_anchor_definition() -> ValidatingEntryType {
+        section::anchor::section_anchor_def()
+    }
+
+    #[entry_def]
+    fn section_entry_definition() -> ValidatingEntryType {
+        section::entry::section_entry_def()
+    }
+
+    #[zome_fn("hc_public")]
+    fn create_section(
+        title: String,
+        course_anchor: Address,
+        timestamp: u64,
+    ) -> ZomeApiResult<Address> {
+        section::handlers::create(title, course_anchor, timestamp)
+    }
+
+    //  ====================== Content definitions
+
+    #[entry_def]
+    fn content_entry_definition() -> ValidatingEntryType {
+        section::anchor::content_anchor_def()
+    }
+
     // TODO: implement content entry definition
     // TODO: implement content CRUD methods
 }

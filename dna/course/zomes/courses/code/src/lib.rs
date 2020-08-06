@@ -22,6 +22,7 @@ use hdk_proc_macros::zome;
 
 mod anchor_trait;
 mod course;
+mod helper;
 
 #[zome]
 mod courses {

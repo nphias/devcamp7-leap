@@ -126,10 +126,10 @@ mod courses {
 
     //  ====================== Content definitions
 
-    #[entry_def]
-    fn content_entry_definition() -> ValidatingEntryType {
-        section::anchor::content_anchor_def()
-    }
+    //#[entry_def]
+    //fn content_entry_definition() -> ValidatingEntryType {
+    //    section::anchor::content_anchor_def()
+    // }
 
     // TODO: implement content entry definition
     // TODO: implement content CRUD methods

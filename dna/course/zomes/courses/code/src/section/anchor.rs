@@ -27,7 +27,7 @@ impl SectionAnchor {
     pub fn new(title: String, anchor_address: Address, timestamp: u64) -> Self {
         SectionAnchor {
             title: title,
-            anchor_address: Address,
+            anchor_address: anchor_address,
             timestamp: timestamp,
         }
     }
@@ -41,7 +41,7 @@ pub fn section_anchor_def() -> ValidatingEntryType {
         validation_package: || {
             hdk::ValidationPackageDefinition::Entry
         },
-        validation: | validation_data: hdk::EntryValidationData<CourseAnchor>| {
+        validation: | validation_data: hdk::EntryValidationData<SectionAnchor>| {
             match validation_data{
                 EntryValidationData::Create { .. } => {
                     Ok(())

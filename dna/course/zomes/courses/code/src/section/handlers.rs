@@ -9,12 +9,12 @@ use crate::helper;
 
 pub fn create(
     title: String,
-    section_anchor_address: Address,
+    course_anchor_address: Address,
     timestamp: u64,
 ) -> ZomeApiResult<Address> {
     // initialize SectionAnchor instance to represent this particular section
     let section_anchor =
-        SectionAnchor::new(title.clone(), section_anchor_address.clone(), timestamp);
+        SectionAnchor::new(title.clone(), course_anchor_address.clone(), timestamp);
     // commit SectionAnchor to DHT
     let section_anchor_address = hdk::commit_entry(&section_anchor.entry())?;
 

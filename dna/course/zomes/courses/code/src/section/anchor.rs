@@ -7,7 +7,7 @@ use crate::anchor_trait::AnchorTrait;
 #[derive(Serialize, Deserialize, Debug, self::DefaultJson, Clone)]
 pub struct SectionAnchor {
     pub title: String,
-    pub anchor_address: Address,
+    pub course_anchor_address: Address,
     pub timestamp: u64,
 }
 
@@ -27,7 +27,7 @@ impl SectionAnchor {
     pub fn new(title: String, anchor_address: Address, timestamp: u64) -> Self {
         SectionAnchor {
             title: title,
-            anchor_address: anchor_address,
+            course_anchor_address: anchor_address,
             timestamp: timestamp,
         }
     }

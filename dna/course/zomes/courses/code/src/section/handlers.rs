@@ -36,8 +36,7 @@ pub fn create(
             )?;
 
             // add section into the course
-            // this is commented because we haven't yet implemented this function in course::handlers
-            //course::handlers::add_section(&course_anchor_address, &section_anchor_address)?;
+            course::handlers::add_section(&course_anchor_address, &section_anchor_address)?;
             // SectionAnchor serves as this section's ID so we return it
             Ok(section_anchor_address)
         }
@@ -116,11 +115,15 @@ pub fn update(
 
 pub fn delete(section_anchor_address: Address) -> ZomeApiResult<Address> {
     // retrieve course_anchor entry. If it doesn't exist, we'll fail with error here so we're also validating input
-    //let section_anchor: SectionAnchor = hdk::utils::get_as_type(section_anchor_address.clone())?;
+    let section_anchor: SectionAnchor = hdk::utils::get_as_type(section_anchor_address.clone())?;
 
     // NOTE: let's try only deleting an anchor! (and don't touch links from anchor to Section entry and Section entry itself)
     // reasons:
     // 1) without it, we won't be able to reach the Section because everywhere we link to section we only use anchor address
     // 2) we'll avoid polluting DHT by new deletion metadata
-    hdk::remove_entry(&section_anchor_address)
+    // hdk::remove_entry(&section_anchor_address)
+    course::handlers::delete_section(
+        &section_anchor.course_anchor_address,
+        &section_anchor_address,
+    )?;
 }

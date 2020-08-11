@@ -3,11 +3,14 @@ use holochain_entry_utils::HolochainEntry;
 
 use super::entry::Section;
 use crate::anchor_trait::AnchorTrait;
+use crate::content::entry::Content;
+
+pub const SECTION_TO_CONTENT_LINK: &str = "section_anchor->content";
 
 #[derive(Serialize, Deserialize, Debug, self::DefaultJson, Clone)]
 pub struct SectionAnchor {
     pub title: String,
-    pub anchor_address: Address,
+    pub course_anchor_address: Address,
     pub timestamp: u64,
 }
 
@@ -19,7 +22,7 @@ impl AnchorTrait for SectionAnchor {
         Section::entry_type()
     }
     fn link_type() -> String {
-        "section_anchor->section".to_owned()
+        "section_anchor->section".to_string()
     }
 }
 
@@ -27,7 +30,7 @@ impl SectionAnchor {
     pub fn new(title: String, anchor_address: Address, timestamp: u64) -> Self {
         SectionAnchor {
             title: title,
-            anchor_address: anchor_address,
+            course_anchor_address: anchor_address,
             timestamp: timestamp,
         }
     }
@@ -66,7 +69,16 @@ pub fn section_anchor_def() -> ValidatingEntryType {
                 validation:|_validation_data: hdk::LinkValidationData|{
                    Ok(())
                 }
-            )
-        ]
+            ),
+            to!(
+                Content::entry_type(),
+                link_type: SECTION_TO_CONTENT_LINK,
+                validation_package:||{
+                    hdk::ValidationPackageDefinition::Entry
+                },
+                validation:|_validation_data: hdk::LinkValidationData|{
+                    Ok(())
+                }
+            )        ]
     )
 }

@@ -21,6 +21,7 @@ use hdk::prelude::*;
 use hdk_proc_macros::zome;
 
 mod anchor_trait;
+mod content;
 mod course;
 mod helper;
 mod section;
@@ -118,19 +119,63 @@ mod courses {
     #[zome_fn("hc_public")]
     fn create_section(
         title: String,
-        course_anchor: Address,
+        course_anchor_address: Address,
         timestamp: u64,
     ) -> ZomeApiResult<Address> {
-        section::handlers::create(title, course_anchor, timestamp)
+        section::handlers::create(title, &course_anchor_address, timestamp)
+    }
+
+    #[zome_fn("hc_public")]
+    fn get_latest_section_entry(
+        section_anchor_address: Address,
+    ) -> ZomeApiResult<Option<section::entry::Section>> {
+        section::handlers::get_latest_section_entry(section_anchor_address)
+    }
+
+    #[zome_fn("hc_public")]
+    fn update_section(title: String, section_anchor_address: Address) -> ZomeApiResult<Address> {
+        section::handlers::update(title, &section_anchor_address)
+    }
+
+    #[zome_fn("hc_public")]
+    fn delete_section(section_anchor_address: Address) -> ZomeApiResult<Address> {
+        section::handlers::delete(section_anchor_address)
     }
 
     //  ====================== Content definitions
 
-    //#[entry_def]
-    //fn content_entry_definition() -> ValidatingEntryType {
-    //    section::anchor::content_anchor_def()
-    // }
+    #[entry_def]
+    fn content_entry_definition() -> ValidatingEntryType {
+        content::entry::entry_def()
+    }
 
-    // TODO: implement content entry definition
-    // TODO: implement content CRUD methods
+    #[zome_fn("hc_public")]
+    fn create_content(
+        name: String,
+        url: String,
+        timestamp: u64,
+        description: String,
+    ) -> ZomeApiResult<Address> {
+        content::handlers::create(name, url, timestamp, description)
+    }
+
+    #[zome_fn("hc_public")]
+    fn get_contents(section_anchor_address: Address) -> ZomeApiResult<Vec<Address>> {
+        content::handlers::get_contents(&section_anchor_address)
+    }
+
+    #[zome_fn("hc_public")]
+    fn update_content(
+        content_address: Address,
+        name: String,
+        url: String,
+        description: String,
+    ) -> ZomeApiResult<Address> {
+        content::handlers::update(content_address, name, url, description)
+    }
+
+    #[zome_fn("hc_public")]
+    fn delete_content(content_address: Address) -> ZomeApiResult<Address> {
+        content::handlers::delete(content_address)
+    }
 }

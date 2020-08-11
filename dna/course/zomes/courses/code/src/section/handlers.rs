@@ -5,6 +5,7 @@ use holochain_entry_utils::HolochainEntry;
 use super::anchor::SectionAnchor;
 use super::entry::Section;
 use crate::anchor_trait::AnchorTrait;
+use crate::course;
 use crate::helper;
 
 pub fn create(
@@ -12,26 +13,40 @@ pub fn create(
     course_anchor_address: Address,
     timestamp: u64,
 ) -> ZomeApiResult<Address> {
-    // initialize SectionAnchor instance to represent this particular section
-    let section_anchor =
-        SectionAnchor::new(title.clone(), course_anchor_address.clone(), timestamp);
-    // commit SectionAnchor to DHT
-    let section_anchor_address = hdk::commit_entry(&section_anchor.entry())?;
+    let latest_course_result = course::handlers::get_latest_course(course_anchor_address)?;
+    match latest_course_result {
+        Some((_course, _course_address)) => {
+            // initialize SectionAnchor instance to represent this particular section
+            let section_anchor =
+                SectionAnchor::new(title.clone(), course_anchor_address.clone(), timestamp);
+            // commit SectionAnchor to DHT
+            let section_anchor_address = hdk::commit_entry(&section_anchor.entry())?;
 
-    // create new Section entry
-    let new_section = Section::new(title, timestamp, section_anchor_address.clone());
-    // commit this entry to DHT and save it's address
-    let new_section_address = hdk::commit_entry(&new_section.entry())?;
+            // create new Section entry
+            let new_section = Section::new(title, timestamp, section_anchor_address.clone());
+            // commit this entry to DHT and save it's address
+            let new_section_address = hdk::commit_entry(&new_section.entry())?;
 
-    // link sectionAnchor to Section entry
-    hdk::link_entries(
-        &section_anchor_address,
-        &new_section_address,
-        SectionAnchor::link_type(),
-        "".to_string(),
-    )?;
+            // link sectionAnchor to Section entry
+            hdk::link_entries(
+                &section_anchor_address,
+                &new_section_address,
+                SectionAnchor::link_type(),
+                "".to_owned(),
+            )?;
 
-    Ok(section_anchor_address)
+            // add section into the course
+            // this is commented because we haven't yet implemented this function in course::handlers
+            //course::handlers::add_section(&course_anchor_address, &section_anchor_address)?;
+            // SectionAnchor serves as this section's ID so we return it
+            Ok(section_anchor_address)
+        }
+        None => {
+            return Err(ZomeApiError::from(
+                "Can't create a section in deleted course".to_owned(),
+            ));
+        }
+    }
 }
 
 pub fn get_latest_section(

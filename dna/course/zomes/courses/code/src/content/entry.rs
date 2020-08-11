@@ -7,38 +7,40 @@ use hdk::{
 use holochain_entry_utils::HolochainEntry;
 
 #[derive(Serialize, Deserialize, Debug, DefaultJson, Clone)]
-pub struct Section {
-    pub title: String,
+pub struct Content {
+    pub name: String,
+    pub url: String,
+    pub description: String,
     pub timestamp: u64,
-    pub anchor_address: Address,
 }
 
-impl Section {
-    pub fn new(title: String, timestamp: u64, anchor_address: Address) -> Self {
-        Section {
-            title: title,
+impl Content {
+    pub fn new(name: String, url: String, description: String, timestamp: u64) -> Self {
+        Content {
+            name: name,
+            url: url,
+            description: description,
             timestamp: timestamp,
-            anchor_address: anchor_address,
         }
     }
 }
 
-impl HolochainEntry for Section {
+impl HolochainEntry for Content {
     fn entry_type() -> String {
-        String::from("section")
+        String::from("content")
     }
 }
 
-// Holochain entry definition for Course
-pub fn section_entry_def() -> ValidatingEntryType {
+// Holochain entry definition for Content
+pub fn entry_def() -> ValidatingEntryType {
     entry!(
-        name: Section::entry_type(),
-        description: "this is the definition of section",
+        name: Content::entry_type(),
+        description: "this is the definition of content",
         sharing: Sharing::Public,
         validation_package: || {
             hdk::ValidationPackageDefinition::Entry
         },
-        validation: | validation_data: hdk::EntryValidationData<Section>| {
+        validation: | validation_data: hdk::EntryValidationData<Content>| {
             match validation_data {
                 EntryValidationData::Create { .. } => {
                     Ok(())
@@ -51,7 +53,5 @@ pub fn section_entry_def() -> ValidatingEntryType {
                 }
             }
         },
-        // All links that course should have are defined for CoureAnchor and so this entry doesn't have any
-        links: []
     )
 }

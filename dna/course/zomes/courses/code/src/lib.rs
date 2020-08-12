@@ -155,10 +155,11 @@ mod courses {
     fn create_content(
         name: String,
         url: String,
-        timestamp: u64,
         description: String,
+        timestamp: u64,
+        section_anchor_address: Address
     ) -> ZomeApiResult<Address> {
-        content::handlers::create(name, url, timestamp, description)
+        content::handlers::create(name, url, description, timestamp, section_anchor_address)
     }
 
     #[zome_fn("hc_public")]
@@ -172,12 +173,13 @@ mod courses {
         name: String,
         url: String,
         description: String,
+        section_anchor_address: Address
     ) -> ZomeApiResult<Address> {
-        content::handlers::update(content_address, name, url, description)
+        content::handlers::update(content_address, name, url, description, section_anchor_address)
     }
 
     #[zome_fn("hc_public")]
-    fn delete_content(content_address: Address) -> ZomeApiResult<Address> {
-        content::handlers::delete(content_address)
+    fn delete_content(content_address: Address,section_anchor_address:Address) -> ZomeApiResult<Address> {
+        content::handlers::delete(content_address,section_anchor_address)
     }
 }

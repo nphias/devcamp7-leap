@@ -10,7 +10,7 @@ use crate::helper;
 
 pub fn create(
     title: String,
-    course_anchor_address: Address,
+    course_anchor_address: &Address,
     timestamp: u64,
 ) -> ZomeApiResult<Address> {
     let latest_course_result = course::handlers::get_latest_course(course_anchor_address)?;
@@ -48,62 +48,53 @@ pub fn create(
     }
 }
 
+// wrapper for a generic helper::get_latest_data_entry that instantiates it
+// specifically for the Section datatype
 pub fn get_latest_section(
     section_anchor_address: &Address,
 ) -> ZomeApiResult<Option<(Section, Address)>> {
     helper::get_latest_data_entry::<Section>(section_anchor_address, &SectionAnchor::link_type())
 }
 
-// NOTE: this function isn't public because it's only needed in the current module
-fn commit_update(
-    section: Section,
-    previous_section_address: &Address,
-    section_anchor_address: &Address,
-) -> ZomeApiResult<Address> {
-    // commit updated course to DHT and get it's new address
-    let new_section_address = hdk::update_entry(section.entry(), previous_section_address)?;
-
-    // remove link to previous version of section
-    hdk::remove_link(
-        section_anchor_address,
-        &previous_section_address,
-        SectionAnchor::link_type(),
-        "".to_string(),
-    )?;
-
-    // create link to new version of section
-    hdk::link_entries(
-        section_anchor_address,
-        &new_section_address,
-        SectionAnchor::link_type(),
-        "".to_string(),
-    )?;
-
-    Ok(section_anchor_address.to_owned())
+// wrapper for the get_latest_course that only returns Section entry
+// and disregards it's address
+pub fn get_latest_section_entry(section_anchor_address: Address) -> ZomeApiResult<Option<Section>> {
+    let latest_section_result = get_latest_section(&section_anchor_address)?;
+    match latest_section_result {
+        Some((section_entry, _section_entry_address)) => {
+            return Ok(Some(section_entry));
+        }
+        None => return Ok(None),
+    }
 }
 
-pub fn update(
-    title: String,
-    // NOTE(e-nastasia): since we have separate methods for section management
-    // (add_section and delete_section) we might not need to have sections_addresses
-    // here because it leaves us with inconsistent API. This needs further discussion.
-    section_anchor_address: &Address,
-) -> ZomeApiResult<Address> {
+pub fn update(title: String, section_anchor_address: &Address) -> ZomeApiResult<Address> {
     let latest_section_result = get_latest_section(section_anchor_address)?;
     match latest_section_result {
         Some((mut previous_section, previous_section_address)) => {
-            // update this course
+            // update the section
             previous_section.title = title;
+            // commit this update to the DHT.
+            let new_section_address =
+                hdk::update_entry(previous_section.entry(), &previous_section_address)?;
 
-            commit_update(
-                previous_section,
-                &previous_section_address,
+            // remove link to previous version of section
+            hdk::remove_link(
                 section_anchor_address,
+                &previous_section_address,
+                SectionAnchor::link_type(),
+                "".to_owned(),
             )?;
 
-            // returning address of the course anchor. Sure, it doesn't change, but it makes our API consistent with hdk:: API
-            // that always returns address of an updated entry
-            return Ok(section_anchor_address.clone());
+            // create link to new version of section
+            hdk::link_entries(
+                section_anchor_address,
+                &new_section_address,
+                SectionAnchor::link_type(),
+                "".to_owned(),
+            )?;
+
+            Ok(section_anchor_address.clone())
         }
         None => {
             return Err(ZomeApiError::from(
@@ -114,16 +105,21 @@ pub fn update(
 }
 
 pub fn delete(section_anchor_address: Address) -> ZomeApiResult<Address> {
-    // retrieve course_anchor entry. If it doesn't exist, we'll fail with error here so we're also validating input
     let section_anchor: SectionAnchor = hdk::utils::get_as_type(section_anchor_address.clone())?;
 
-    // NOTE: let's try only deleting an anchor! (and don't touch links from anchor to Section entry and Section entry itself)
-    // reasons:
-    // 1) without it, we won't be able to reach the Section because everywhere we link to section we only use anchor address
-    // 2) we'll avoid polluting DHT by new deletion metadata
-    // hdk::remove_entry(&section_anchor_address)
+    // NOTE: we're using the fact that anchor contains course_address and that we don't allow
+    //  to change course_address in a section entry.
+    // By doing so, we avoid necessity to query links of the section_anchor to retrieve the latest section entry
+    // which makes this method a little bit faster
     course::handlers::delete_section(
         &section_anchor.course_anchor_address,
         &section_anchor_address,
     )?;
+
+    // NOTE: let's try only deleting an anchor! (and don't touch links from anchor to section entry and section entry itself)
+    // reasons:
+    // 1) without it, we won't be able to reach the section because everywhere we link to section we only use anchor address
+    // 2) we'll avoid polluting DHT by new deletion metadata
+    let result = hdk::remove_entry(&section_anchor_address)?;
+    Ok(result)
 }

@@ -51,7 +51,7 @@ pub fn section_entry_def() -> ValidatingEntryType {
                 }
             }
         },
-        // All links that course should have are defined for CoureAnchor and so this entry doesn't have any
+        // sections have no explicit links
         links: []
     )
 }

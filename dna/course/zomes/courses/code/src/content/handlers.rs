@@ -1,6 +1,7 @@
 use hdk::error::{ZomeApiError, ZomeApiResult};
 use hdk::holochain_persistence_api::cas::content::Address;
 use holochain_entry_utils::HolochainEntry;
+use hdk::prelude::*;
 
 use super::entry::Content;
 use crate::section;
@@ -11,6 +12,7 @@ pub fn create(
     url: String,
     description: String,
     timestamp: u64,
+    section_anchor_address:Address
 ) -> ZomeApiResult<Address> {
     let latest_section_result = section::handlers::get_latest_section(&section_anchor_address)?;
     match latest_section_result {
@@ -49,6 +51,7 @@ pub fn update(
     name: String,
     url: String,
     description: String,
+    section_anchor_address: Address
 ) -> ZomeApiResult<Address> {
     let mut content: Content = hdk::utils::get_as_type(content_address.clone())?;
     content.description = description;
@@ -59,7 +62,7 @@ pub fn update(
 
     // remove link to previous version of content
     hdk::remove_link(
-        &content.section_anchor_address,
+        &section_anchor_address,
         &content_address,
         SECTION_TO_CONTENT_LINK,
         "",
@@ -67,7 +70,7 @@ pub fn update(
 
     // create link to the updated version of content
     hdk::link_entries(
-        &content.section_anchor_address,
+        &section_anchor_address,
         &updated_content_address,
         SECTION_TO_CONTENT_LINK,
         "",
@@ -77,15 +80,17 @@ pub fn update(
     Ok(updated_content_address)
 }
 
-pub fn delete(content_address: Address) -> ZomeApiResult<Address> {
-    let content: Content = hdk::utils::get_as_type(content_address.clone())?;
+pub fn delete(content_address: Address, section_anchor_address: Address) -> ZomeApiResult<Address> {
+    //let content: Content = hdk::utils::get_as_type(content_address.clone())?;
 
     hdk::remove_link(
-        &content.section_anchor_address,
+        &section_anchor_address,
         &content_address,
         SECTION_TO_CONTENT_LINK,
         "",
     )?;
 
-    hdk::remove_entry(&content_address)
+    Ok(content_address)
+    // content is reusable in other sections
+   // hdk::remove_entry(&content_address)
 }

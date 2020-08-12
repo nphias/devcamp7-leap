@@ -2,7 +2,7 @@ use hdk::{
     entry_definition::ValidatingEntryType,
     holochain_core_types::{dna::entry_types::Sharing, validation::EntryValidationData},
     holochain_json_api::{error::JsonError, json::JsonString},
-    holochain_persistence_api::cas::content::Address,
+    //holochain_persistence_api::cas::content::Address,
 };
 use holochain_entry_utils::HolochainEntry;
 
@@ -52,6 +52,6 @@ pub fn entry_def() -> ValidatingEntryType {
                     Ok(())
                 }
             }
-        },
+        }
     )
 }

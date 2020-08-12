@@ -1,14 +1,10 @@
-# Personal architecture decisions 
+# Personal architecture ideas 
 
-- A section is specific to the course so updates to a section, should automatically update the course
-- a section does not need an implicit link to the course anchor
-- content does not have any implicit link to section and can be shared among other sections with explicit links
-- a section can have multiple content entries 
+- a section could be independent of course... remove reverse implicit links
 ( if a specific content is updated regularly then we will need to consider a delete and create new link rather than update entry approach)
 
-- calling get_lastest_course with a course anchor should return all information on the course including content for each section
-- updating a course should just allow title and description modification not sections
-
+- calling get_all_course data() with a course anchor could return all information on the course including content for each section
+- git style versioning for courses... explicit links only deleted if update or delete course are called by a teacher
 
 # devcamp7-leap
 

@@ -7,6 +7,7 @@
 ( if a specific content is updated regularly then we will need to consider a delete and create new link rather than update entry approach)
 
 - calling get_lastest_course with a course anchor should return all information on the course including content for each section
+- updating a course should just allow title and description modification not sections
 
 
 # devcamp7-leap

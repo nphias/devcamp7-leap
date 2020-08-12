@@ -5,6 +5,7 @@
 
 - calling get_all_course data() with a course anchor could return all information on the course including content for each section
 - git style versioning for courses... explicit links only deleted if update or delete course are called by a teacher
+- ability for a different teacher to fork a course and set the "current_course" implicit link from anchor 
 
 # devcamp7-leap
 

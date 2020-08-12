@@ -1,4 +1,4 @@
-# Personal arhcitecture decisions 
+# Personal architecture decisions 
 
 - A section is specific to the course so updates to a section, should automatically update the course
 - a section does not need an implicit link to the course anchor

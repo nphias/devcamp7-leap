@@ -1,3 +1,14 @@
+# Personal arhcitecture decisions 
+
+- A section is specific to the course so updates to a section, should automatically update the course
+- a section does not need an implicit link to the course anchor
+- content does not have any implicit link to section and can be shared among other sections with explicit links
+- a section can have multiple content entries 
+( if a specific content is updated regularly then we will need to consider a delete and create new link rather than update entry approach)
+
+- calling get_lastest_course with a course anchor should return all information on the course including content for each section
+
+
 # devcamp7-leap
 
 Leap (Learning Pathways) is a peer-to-peer Udemy inspired learning application built on Holochain.
